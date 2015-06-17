@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 8]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 9]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie9"></html>
+<![endif]-->
+<!--if [(gt IE 9)|!(IE)] <!-->
+<html ng-app="main" class="no-js">
+  <!-- <![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title>Test Driven Development Advantages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Reveal JS Template">
+    <link href="./assets/css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="opi-logo"></div>
+      <div class="slides">
+        <section data-state="index-slide">
+          <h1>Advantages of Test Driven Development</h1>
+          <p>
+            <small> Created by Craig Atkinson  | Chief Technologist | <a href="http://www.objectpartners.com/">Object Partners</a></small>
+            <img src="./assets/img/2015-OPI-Logo-Long.png" style="background:none; border:none; box-shadow:none;"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>About Me</h2>
+          <ul>
+            <li>Craig Atkinson</li>
+            <li>Chief Technologist, OPI</li>
+            <li>7 years of Test Driven Development</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Agenda</h2>
+          <ul>
+            <li class="fragment">TDD Intro</li>
+            <li class="fragment">Five Advantages</li>
+            <li class="fragment">Getting started with TDD</li>
+            <li class="fragment">Test Driven Examples</li>
+          </ul>
+        </section>
+        <section>
+          <h1>TDD Intro</h1>
+        </section>
+        <section>
+          <h2>TDD vs the usual way</h2>
+        </section>
+        <section>
+          <h2>Standard development testing</h2>
+          <ul>
+            <li class="fragment">Write code</li>
+            <li class="fragment">Manually verify code works</li>
+            <li class="fragment">Write automated tests</li>
+            <li class="fragment">Run tests, they pass</li>
+          </ul>
+        </section>
+        <section>
+          <h2>How is TDD different?</h2>
+          <ul>
+            <li class="fragment">Write automated tests</li>
+            <li class="fragment">Run tests, they fail</li>
+            <li class="fragment">Write code</li>
+            <li class="fragment">Run tests, they pass</li>
+          </ul>
+        </section>
+        <section>
+          <h2>TDD Cycle</h2>
+          <p>
+            <img src="./assets/img/red-green-refactor.png"/>
+            
+          </p>
+        </section>
+        <section>
+          <h1>TDD Advantages</h1>
+        </section>
+        <section>
+          <h2>#1 Tests valuable longer
+            <aside class="notes">
+              Writing tests after the code will only help you later if you need to change the code.
+              When writing the test first, it has value to you during the coding process as well as later
+              
+            </aside>
+          </h2>
+        </section>
+        <section>
+          <h2>Traditional test value</h2>
+          <p>
+            <img src="./assets/img/test-value-traditional-way.png"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>Test value with TDD</h2>
+          <p>
+            <img src="./assets/img/test-value-tdd.png"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>#2 Know the test is valid</h2>
+        </section>
+        <section>
+          <h2>Test will really catch errors</h2>
+          <p>Don't trust a test you've never seen fail</p>
+        </section>
+        <section>
+          <h2>Test fails for the right reason</h2>
+          <p>Expected assertion failure</p>
+          <aside class="notes">You could do the same thing by writing the code, writing the test, shelving the code, then running the test, verify it fails, then re-applying the code, but that’s slower</aside>
+        </section>
+        <section>
+          <h2>Reproduce and fix bugs</h2>
+          <p>Know your fix is correct</p>
+        </section>
+        <section>
+          <h2>#3 Easier to write testable code</h2>
+        </section>
+        <section>
+          <h2>Writing tests after code can be painful</h2>
+          <p>You may even have to refactor the code to be testable</p>
+        </section>
+        <section>
+          <h2>#4 Help prevent code rot</h2>
+        </section>
+        <section>
+          <h2>Big refactoring can be hard to sell</h2>
+          <p>Risk of breaking existing functionality</p>
+        </section>
+        <section>
+          <h2>Test suite acts as safety net</h2>
+          <p>Cleanup and refactor without fear</p>
+        </section>
+        <section>
+          <h2>#5 Future code changes are faster and easier</h2>
+        </section>
+        <section>
+          <h2>Easier to respond to customer needs</h2>
+          <ul>
+            <li class="fragment">Functionality changes</li>
+            <li class="fragment">Bug fixes</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Update libraries & frameworks</h2>
+          <p>Tests catch incompatibilities or regressions</p>
+        </section>
+        <section>
+          <h2>Bonus Advantage: Executable documentation</h2>
+        </section>
+        <section>
+          <h2>Test suite documents code behavior</h2>
+          <p>Code comments can become stale</p>
+        </section>
+        <section>
+          <h1>Getting started with TDD</h1>
+        </section>
+        <section>
+          <h2>Minimize what's new</h2>
+          <p>Start with libraries and testing frameworks you're familiar with</p>
+        </section>
+        <section>
+          <h2>TDD needs no approval</h2>
+          <p>It's your own personal choice</p>
+          <aside class="notes">Unlike using a new language or framework, TDD is your own personal choice that doesn't affect others</aside>
+        </section>
+        <section>
+          <h2>Ability to write tests</h2>
+          <p>Testing frameworks in place</p>
+        </section>
+        <section>
+          <h2>Don't need to like testing</h2>
+          <p class="fragment">Though be warned, you may start to like it</p>
+        </section>
+        <section>
+          <h2>Data-driven unit testing framework helpful</h2>
+          <ul>
+            <li class="fragment">Run same test body with different inputs and outputs</li>
+            <li class="fragment">Reduce test duplication</li>
+          </ul>
+        </section>
+        <section>
+          <h1>TDD Examples</h1>
+        </section>
+        <section>
+          <h2>Example of bug fix</h2>
+        </section>
+        <section>
+          <h2>Broken calculator average</h2>
+          <pre><code>
+  class Calculator {
+    BigDecimal average(List<BigDecimal> numbers) {
+      return numbers.sum() / 2
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Existing incomplete test</h2>
+          <pre><code>
+  def 'should average two numbers'() {
+      given:
+      List<BigDecimal> numbers = [5, 15]
+      
+      when:
+      BigDecimal average = new Calculator().average(numbers)
+      
+      then:
+      assert average == 10
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Reproduce error with additional test</h2>
+          <pre><code>
+  def 'should average three numbers'() {
+      given:
+      List<BigDecimal> numbers = [3, 6, 9]
+      
+      when:
+      BigDecimal average = new Calculator().average(numbers)
+      
+      then:
+      assert average == 6
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test fails (red)</h2>
+          <pre><code>
+  CalculatorSpec > should average three numbers FAILED
+  
+  Condition not satisfied:
+  
+  average == 6
+  |       |
+  9       false
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Fix code</h2>
+          <pre><code>
+  class Calculator {
+    BigDecimal average(List<BigDecimal> numbers) {
+      return numbers.sum() / numbers.size()
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Tests pass (green)</h2>
+        </section>
+        <section>
+          <h2>Refactor</h2>
+          <p>Clean up source and/or test code</p>
+        </section>
+        <section>
+          <h2>Similiar tests</h2>
+          <p>Tests only differ by inputs and outputs</p>
+        </section>
+        <section>
+          <h2>Single data-driven test</h2>
+          <pre><code>
+  @Unroll
+  def 'should average numbers'() {
+      when:
+      BigDecimal average = new Calculator().average(numbers)
+      
+      then:
+      assert average == expectedAverage
+      
+      where:
+      numbers   || expectedAverage
+      [5, 15]   || 10
+      [3, 6, 9] || 6
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Example of new feature</h2>
+        </section>
+        <section>
+          <h2>Add 'range' method to Calculator</h2>
+        </section>
+        <section>
+          <h2>Write failing tests</h2>
+          <pre><code>
+  @Unroll
+  def 'should calculate range of numbers'() {
+    when:
+    BigDecimal range = new Calculator().range(numbers)
+    
+    then:
+    assert range == expectedRange
+    
+    where:
+    numbers      || expectedRange
+    [1, 3]       || 2
+    [11, 20, 31] || 20
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Tests fail (red)</h2>
+          <pre><code>
+  CalculatorSpec > should calculate range of numbers[0] FAILED
+  groovy.lang.MissingMethodException:
+  No signature of method: Calculator.range() is applicable for argument types:
+  (java.util.ArrayList) values: [[1, 3]]
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Implement 'range' method</h2>
+          <pre><code>
+  BigDecimal range(List<BigDecimal> numbers) {
+    return numbers.last() - numbers.first()
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Tests pass (green)</h2>
+        </section>
+        <section>
+          <h2>Additional test cases?</h2>
+          <p class="fragment">What if list isn't sorted?</p>
+        </section>
+        <section>
+          <h2>Add test case</h2>
+          <pre><code>
+  @Unroll
+  def 'should calculate range of numbers #numbers'() {
+    when:
+    BigDecimal range = new Calculator().range(numbers)
+    
+    then:
+    assert range == expectedRange
+    
+    where:
+    numbers      || expectedRange
+    [1, 3]       || 2
+    [11, 20, 31] || 20
+    [12, 28, 15] || 16
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Run test, new test case fails</h2>
+          <pre><code>
+ CalculatorSpec > should calculate range of numbers [12, 28, 15] FAILED
+ Condition not satisfied:
+ 
+ range == expectedRange
+ |     |  |
+ 3     |  16
+       false
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Fix 'range' method</h2>
+          <pre><code>
+  BigDecimal range(List<BigDecimal> numbers) {
+    List<BigDecimal> sortedNumbers = numbers.sort(false)
+    
+    return sortedNumbers.last() - sortedNumbers.first()
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Tests pass (green)</h2>
+        </section>
+        <section>
+          <h2>Refactor (optional)</h2>
+          <p>Done with feature</p>
+        </section>
+        <section>
+          <h2>Webapp Example</h2>
+          <p>Implement user registration</p>
+        </section>
+        <section>
+          <h2>Multiple TDD cycles</h2>
+          <p>Start with high-level tests, move to lower-level tests</p>
+        </section>
+        <section>
+          <h2>Functional/unit test cycle</h2>
+          <p>
+            <img src="./assets/img/functional-unit-test-loop-red.png"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>Functional/unit test cycle</h2>
+          <p>
+            <img src="./assets/img/functional-unit-test-loop-green.png"/>
+            
+            
+          </p>
+        </section>
+        <section>
+          <h2>Write happy-path browser functional test</h2>
+          <ul>
+            <li class="fragment">Navigate to registration page</li>
+            <li class="fragment">Enter email and password</li>
+            <li class="fragment">Click button to submit registration</li>
+            <li class="fragment">Verify user record created in database</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Run test, it fails</h2>
+          <p>Registration page doesn't exist</p>
+        </section>
+        <section>
+          <h2>Create registration page</h2>
+          <p class="fragment">Form that passes email & password to non-existent backend 'register' method</p>
+        </section>
+        <section>
+          <h2>Write backend tests for 'register' method</h2>
+          <p>Verify user record is created in database</p>
+        </section>
+        <section>
+          <h2>Run backend tests, they fail</h2>
+          <p>'register' method doesn't exist</p>
+        </section>
+        <section>
+          <h2>Implement 'register' method</h2>
+        </section>
+        <section>
+          <h2>Run backend tests, they pass</h2>
+        </section>
+        <section>
+          <h2>Run browser functional test, it passes</h2>
+        </section>
+        <section>
+          <h2>Summary of working feature</h2>
+          <ul>
+            <li>User can register with new email and password</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Registration feature complete?</h2>
+          <p class="fragment">What about errors?</p>
+        </section>
+        <section>
+          <h2>Write browser functional test for error case</h2>
+          <ul>
+            <li class="fragment">Create user in database</li>
+            <li class="fragment">Go registration page</li>
+            <li class="fragment">Fill in registration form with same email and submit</li>
+            <li class="fragment">Verify error message displayed</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Run functional test, should fail</h2>
+          <p>Missing error message</p>
+        </section>
+        <section>
+          <h2>Update page</h2>
+          <p>Add display of error messages from backend</p>
+        </section>
+        <section>
+          <h2>Write failing backend test</h2>
+          <p>Registering with existing email</p>
+        </section>
+        <section>
+          <h2>Update backend 'register' method</h2>
+          <p>Add check for existing user with email</p>
+        </section>
+        <section>
+          <h2>Run backend then functional tests (green)</h2>
+        </section>
+        <section>
+          <h2>Summary of working feature</h2>
+          <ul>
+            <li class="fragment">User can register with new email and password</li>
+            <li class="fragment">Registering with existing email displays helpful error message</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Iterate backend test/code cycle for more errors</h2>
+          <p>Invalid email, weak password, etc.</p>
+        </section>
+        <section>
+          <h2>test-driven webapp feature</h2>
+        </section>
+        <section>
+          <h2>Additional Resources</h2>
+          <ul>
+            <li><a href="http://amzn.com/0321146530">Test Driven Development: By Example</a> by Kent Beck</li>
+            <li><a href="http://amzn.com/B00CYMN3J2">Behaviour Driven Development with Javascript</a> by Marco Emrich</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Summary</h1>
+          <ul>
+            <li class="fragment">TDD gives you more value with less pain</li>
+            <li class="fragment">You can start TDD today</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Q&A</h1>
+          <p class="fragment">craig.atkinson@objectpartners.com</p>
+        </section>
+      </div>
+    </div>
+    <script src="./assets/js/app.js"></script>
+    <!-- If the query includes 'print-pdf', use the PDF print sheet-->
+    <script type="text/javascript">
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      } else if ( window.location.search.match( /print-paper/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+  </body>
+</html>
