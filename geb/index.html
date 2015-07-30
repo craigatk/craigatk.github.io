@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 8]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 9]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie9"></html>
+<![endif]-->
+<!--if [(gt IE 9)|!(IE)] <!-->
+<html ng-app="main" class="no-js">
+  <!-- <![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title>Geb Functional Testing Unleashed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Reveal JS Template">
+    <link href="./assets/css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="opi-logo"></div>
+      <div class="slides">
+        <section data-state="index-slide">
+          <h1>Geb Functional Testing Unleashed</h1>
+          <p>
+            <small> Craig Atkinson  | Principal Consultant | <a href="http://www.objectpartners.com/">Object Partners</a></small>
+            <img src="./assets/img/2015-OPI-Logo-Long.png" style="background:none; border:none; box-shadow:none;"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>About Me</h2>
+          <ul>
+            <li>Craig Atkinson</li>
+            <li class="fragment">Principal Consultant, Object Partners (OPI)</li>
+            <li class="fragment">Using Geb 3 years</li>
+            <li class="fragment">Very minor Geb contributor</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Agenda</h2>
+          <ul>
+            <li class="fragment">Quick Geb Intro</li>
+            <li class="fragment">Page Objects</li>
+            <li class="fragment">Built-in test helpers</li>
+            <li class="fragment">Cross-browser testing</li>
+            <li class="fragment">Running tests in parallel</li>
+            <li class="fragment">Remote controls</li>
+            <li class="fragment">Mock 3rd-party services</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Geb Intro</h1>
+        </section>
+        <section>
+          <h2>What is Geb?</h2>
+          <ul>
+            <li>Groovy browser testing framework built upon Selenium</li>
+            <li class="fragment">jQuery-style selectors</li>
+            <li class="fragment">Built-in page objects</li>
+            <li class="fragment">and much more!</li>
+          </ul>
+        </section>
+        <section>
+          <h2>What can you test with Geb?</h2>
+          <ul>
+            <li>Any web application</li>
+            <li>App doesn't need to be written in Groovy</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Simple example test</h2>
+          <pre><code>
+  go "http://www.google.com"
+  
+  $("input", name: "q").value("geb")
+  $("button", name: "btnG").click()
+  
+  waitFor { $("#search").displayed }
+  
+  $("h3.r").first().click()
+  
+  waitFor { title == "Geb - Very Groovy Browser Automation" }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Quick demo</h2>
+        </section>
+        <section>
+          <h2>Selector syntax</h2>
+          <pre><code>
+ $("#by-id")
+ 
+ $(".by-class")
+ 
+ $("div", name: "by-attribute")
+ 
+ $("div", text: "By text")
+ 
+</code></pre>
+          <p><a href="http://www.gebish.org/manual/current/#the-code-code-function">Full list of selectors in manual</a></p>
+        </section>
+        <section>
+          <h2>Easy to read and maintain?</h2>
+          <ul>
+            <li>Tests with embedded page structure (HTML) are less readable</li>
+            <li class="fragment">Multiple places to update if page structure changes</li>
+            <li class="fragment">Can we abstract page structure out of tests?</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Page Objects</h1>
+        </section>
+        <section>
+          <h2>Page Object pattern</h2>
+          <ul>
+            <li>Abstract page-specific details into helper classes (Page Objects)</li>
+            <li class="fragment">Re-used across tests</li>
+            <li class="fragment">Single point of maintenance</li>
+            <li class="fragment">Tests become easier to read</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Test with page objects</h2>
+          <pre><code>
+  to GoogleHomePage
+  
+  searchBox = "Geb"
+  
+  searchButton.click()
+  
+  searchResultsLinks.first().click()
+  
+  assert at(GebHomePage)
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Page object</h2>
+          <pre><code>
+  class GoogleHomePage extends geb.Page {
+    static url = "http://www.google.com"
+    
+    static content = {
+      searchBox { $("input", name: "q") }
+      
+      searchButton { $("button", name: "btnG") }
+      
+      searchResultsLinks(wait: true) { $("h3.r") }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>What's in a Geb Page Object?</h2>
+          <ul>
+            <li class="fragment">Elements on page and how to find them</li>
+            <li class="fragment">How to verify test is currently on page</li>
+            <li class="fragment">URL to go directly to page</li>
+            <li class="fragment">Helper methods to simplify page interactions</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Elements on page</h2>
+          <ul>
+            <li><strong>content</strong> block</li>
+            <li class="fragment">Defines elements on the page that tests will interact with</li>
+            <li class="fragment">Includes <strong>selectors</strong> that tell Geb how to find the element on the page</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Content Block Example</h2>
+          <pre><code>
+  class IdeaCreatePage extends geb.Page {
+  
+    static content = {
+    
+      titleField { $("#title") }
+      descriptionField { $("#description") }
+      createButton { $("#create") }
+      
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Verify test at current page</h2>
+          <pre><code>
+  class IdeaCreatePage extends geb.Page {
+  
+    static at = { $("div#create-idea").displayed }
+    
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Go directly to page</h2>
+          <pre><code>
+  class IdeaCreatePage extends geb.Page {
+  
+    static url = "idea/create"
+    
+  }
+  
+</code>
+</pre>
+          <pre class="fragment"><code>
+  IdeaCreatePage ideaCreatePage = to(IdeaCreatePage)
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Change Page when Clicking</h2>
+          <ul>
+            <li>Geb keeps track of the current page</li>
+            <li class="fragment">Tell Geb when the page changes</li>
+          </ul>
+          <pre class="fragment"><code>
+  static content = {
+  
+    createButton(to: IdeaShowPage) { $("input#create") }
+    
+  }
+  
+</code>
+</pre>
+          <pre class="fragment"><code>
+  void clickCreateButton() {
+    createButton.click()
+    
+    assert browser.page.class == IdeaShowPage
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Multiple Possible Pages?</h2>
+          <ul>
+            <li>Use a list of possible page classes as <strong>to</strong> value</li>
+            <li class="fragment">Geb uses <strong>at</strong> check to determine resulting page</li>
+          </ul>
+          <pre class="fragment"><code>
+  static content = {
+  
+    createButton(to: [IdeaShowPage, IdeaErrorPage]) { $("input#create") }
+    
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Alternative approach to page objects</h2>
+        </section>
+        <section>
+          <h2>Standard page object</h2>
+          <p class="fragment">Standard: Geb delegates method calls to current page object</p>
+        </section>
+        <section>
+          <h2>Test with standard page objects</h2>
+          <pre><code>
+  to HomePage
+  loginButton.click()
+  
+  username = "user1"
+  password = "password1"
+  submitButton.click()
+  
+  // What page is the test on now?
+  
+  // What fields are on the current page?
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Strongly-typed page objects</h2>
+          <p class="fragment">Test uses reference to current page object</p>
+        </section>
+        <section>
+          <h2>With typed pages</h2>
+          <pre><code>
+  HomePage homePage = to HomePage
+  
+  LoginPage loginPage = homePage.clickLoginButton()
+  
+  DashboardPage dashboardPage = loginPage.login("user1", "password1")
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Chain page calls</h2>
+          <pre><code>
+  HomePage homePage = to HomePage
+  
+  DashboardPage dashboardPage = homePage
+    .clickLoginButton()
+    .login("user1", "password1")
+    
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Typed page characteristics</h2>
+          <ul>
+            <li class="fragment">Page objects have methods that resemble user actions</li>
+            <li class="fragment">Methods that change page return instance of new page</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Typed home page</h2>
+          <pre><code>
+  class HomePage extends geb.Page {
+    static content = {
+      loginButton(to: LoginPage) { $("#loginButton") }
+    }
+    
+    LoginPage clickLoginButton() {
+      loginButton.click()
+      
+      return browser.page
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Typed login page</h2>
+          <pre><code>
+  class LoginPage extends geb.Page {
+    static content = {
+      usernameField { $("#username") }
+      passwordField { $("#password") }
+      submitButton(to: DashboardPage) { $("#submit") }
+    }
+    
+    DashboardPage login(String username, String password) {
+      usernameField.value(username)
+      passwordField.value(password)
+      submitButton.click()
+      
+      return browser.page
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Typed page objects summary</h2>
+          <ul>
+            <li class="fragment">Little additional work to write page objects</li>
+            <li class="fragment">Save more time writing (and later reading) test code</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Built-in Test Helpers</h1>
+        </section>
+        <section>
+          <h2>Waiting support</h2>
+          <ul>
+            <li class="fragment">Dynamic elements and content common with Ajax, Javascript MVC, etc.</li>
+            <li class="fragment">Can also wait for data changes (new DB record created, etc.)</li>
+            <li class="fragment"><strong>waitFor</strong> method available in tests and page objects</li>
+          </ul>
+        </section>
+        <section>
+          <h2>waitFor examples</h2>
+          <pre><code>
+  waitFor {
+    $("div.alert").displayed
+  }
+  
+  waitFor {
+    $("div.message").text() == "Update successful"
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Complex UI elements</h2>
+          <p class="fragment">Sliders, date pickers, etc.</p>
+        </section>
+        <section>
+          <h2>Mouse interactions</h2>
+          <ul>
+            <li class="fragment">Click and drag slider with mouse</li>
+          </ul>
+          <pre class="fragment"><code>
+  static content = {
+    ratingSliderHandle { $(".ui-slider-handle") }
+  }
+  
+  void moveRatingSlider(Integer rating) {
+    // Slider is 400 pixels wide and starts at 1,
+    // so each notch above 1 is 100 pixels apart
+    Integer numPixelsX = (rating - 1) * 100
+    
+    interact {
+      clickAndHold(ratingSliderHandle)
+      moveByOffset(numPixelsX, 0)
+      release()
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Mouse interaction demo</h2>
+        </section>
+        <section>
+          <h2>Use keyboard</h2>
+          <ul>
+            <li class="fragment">Send keystokes with left-shift operator <<</li>
+          </ul>
+          <pre class="fragment"><code>
+  $("#myInputField") << "value"
+  
+</code></pre>
+          <pre class="fragment"><code>
+  $(".ui-slider-handle") << Keys.ARROW_RIGHT
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Keyboard demo</h2>
+        </section>
+        <section>
+          <h2>Execute raw Javascript</h2>
+          <ul>
+            <li>Last-ditch effort with complex UI controls</li>
+            <li class="fragment">All Navigator elements have a 'jquery' field to run JS</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Show hidden element</h2>
+          <pre><code>
+  static content = {
+    hiddenLink { $("#hiddenLink") }
+  }
+  
+  void clickHiddenLink() {
+    hiddenLink.jquery.show()
+    
+    hiddenLink.click()
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Cross-Browser Testing</h1>
+        </section>
+        <section>
+          <h2>Available browsers</h2>
+          <ul>
+            <li>Any browser with a Selenium/Webdriver library</li>
+            <li class="fragment">Real: Firefox, Chrome, IE, Safari, etc.</li>
+            <li class="fragment">Simulated: HtmlUnit, PhantomJS</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Configuring browser in Geb</h2>
+          <ul>
+            <li class="fragment">Browser Selenium driver dependency</li>
+            <li class="fragment">Additional OS-specific browser driver</li>
+            <li class="fragment">Section in GebConfig.groovy</li>
+            <li class="fragment">Pass environment param to Geb</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Selenium driver dependencies</h2>
+          <pre><code>
+  def seleniumVersion = "2.46.0"
+  
+  test "org.seleniumhq.selenium:selenium-support:${seleniumVersion}"
+  test "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
+  test "org.seleniumhq.selenium:selenium-firefox-driver:${seleniumVersion}"
+  test "org.seleniumhq.selenium:selenium-ie-driver:${seleniumVersion}"
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Operating system driver</h2>
+          <ul>
+            <li class="fragment">Firefox doesn't need one</li>
+            <li class="fragment">Chrome, Internet Explorer need local driver executable</li>
+            <li class="fragment">Manually download, install, and configure</li>
+            <li class="fragment">Or ...</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Automatic download based on OS</h2>
+          <ul>
+            <li class="fragment">Have GebConfig.groovy detect OS and download driver</li>
+            <li class="fragment">Idea from <a href="http://fbflex.wordpress.com/2013/01/06/geb-quickie-automatically-download-drivers-for-chrome-and-internet-explorer/">Tomas Lin's blog</a></li>
+            <li class="fragment"><a href="https://github.com/craigatk/geb-example/blob/master/test/functional/GebConfig.groovy">GebConfig.groovy example</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Chrome GebConfig Example</h2>
+          <pre><code>
+  environments {
+    chrome {
+      String version = "2.14"
+      String zipFileName
+      String execFileName
+      
+      if (Platform.current.is(Platform.MAC)) {
+        zipFileName = "chromedriver_mac32.zip"
+        execFileName = "chromedriver"
+      } else if (Platform.current.is(Platform.LINUX)) {
+        zipFileName = "chromedriver_linux32.zip"
+        execFileName = "chromedriver"
+      } else if (Platform.current.is(Platform.WINDOWS)) {
+        zipFileName = "chromedriver_win32.zip"
+        execFileName = "chromedriver.exe"
+      }
+      
+      String url = "http://chromedriver.storage.googleapis.com/${version}/${zipFileName}"
+      File localExecutable = downloadDriver(url, execFileName, 'zip')
+      System.setProperty('webdriver.chrome.driver', localExecutable.absolutePath)
+      
+      driver = { new ChromeDriver() }
+    }
+  }
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Pass geb.env parameter</h2>
+          <pre><code>
+  grails -Dgeb.env=chrome test-app functional:
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Parallel testing</h1>
+        </section>
+        <section>
+          <h2>Parallel testing requirements</h2>
+          <ul>
+            <li>Build tool that supports parallel testing (Gradle, etc.)</li>
+            <li class="fragment">Tests can't modify any shared data</li>
+            <li class="fragment">Safest to have each test set up its own data</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Parallel testing example</h2>
+          <ul>
+            <li>Using Gradle</li>
+            <li class="fragment">Start app using Grails wrapper</li>
+            <li class="fragment">Run 2 tests simultaneously</li>
+            <li class="fragment">Shut down Grails app</li>
+            <li class="fragment">Demo</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Groovy Remote Control</h1>
+        </section>
+        <section>
+          <h2>What are remote controls useful for?</h2>
+          <ul>
+            <li class="fragment">Setting up data specific to a test</li>
+            <li class="fragment">Grabbing data after test for verification</li>
+            <li class="fragment">Retrieving & setting up data in mock services (stay tuned)</li>
+          </ul>
+        </section>
+        <section>
+          <h2>How does it work?</h2>
+          <ul>
+            <li class="fragment">Lets you execute code inside the running app from a test</li>
+            <li class="fragment"><a href="https://github.com/alkemist/grails-remote-control">Grails Remote Control plugin docs</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Data setup example</h2>
+          <pre><code>
+  Idea createIdea(String title, String description) {
+    RemoteControl remote = new RemoteControl()
+    
+    remote {
+      Idea idea = new Idea(
+          title: title,
+          description: description
+      )
+      
+      idea.save()
+    }
+  }
+  
+</code></pre>
+          <pre class="fragment"><code>
+  List<Idea> ideas = (1..5).collect { i ->
+    ideaRemoteControl.createIdea("Title ${i}", "Description ${i}")
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Data verification example</h2>
+          <pre><code>
+  Idea findByTitle(String title) {
+    RemoteControl remote = new RemoteControl()
+    
+    remote {
+      Idea.findByTitle(title)
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Mock third-party services</h1>
+        </section>
+        <section>
+          <h2>Proliferation of Third-party services</h2>
+          <ul>
+            <li class="fragment">Email, payment processing, storage, address verification, etc.</li>
+            <li class="fragment">Great for productivity, but can complicate testing</li>
+            <li class="fragment">Don't want our tests dependent on services out of our control</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Solution?</h2>
+          <ul>
+            <li class="fragment">Mock call/response from external services</li>
+            <li class="fragment">Our tests not dependent on external service</li>
+            <li class="fragment">Tests have tight control over service responses</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Environment-specific Dependency Injection</h2>
+          <ul>
+            <li class="fragment">If using DI framework like Spring, Guice, etc.</li>
+            <li class="fragment">Create mock version of code that calls external service</li>
+            <li class="fragment">Use DI to replace code with mock version during functional tests</li>
+            <li class="fragment">Setup and verify data from mock services in tests</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example service to mock</h2>
+          <p class="fragment">PatentService sends ideas to patent office</p>
+          <pre class="fragment"><code>
+  class PatentService {
+  
+    def sendToPatentOffice(Idea idea) {
+      // Send the idea to the real patent office
+      
+    }
+    
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Mock Patent Service</h2>
+          <pre><code>
+  class PatentServiceMock extends PatentService {
+    List<Idea> ideasSentToPatentOffice = []
+    
+    @Override
+    def sendToPatentOffice(Idea idea) {
+      ideasSentToPatentOffice << idea
+    }
+    
+    void reset() {
+      ideasSentToPatentOffice = []
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Use mock patent service</h2>
+          <ul>
+            <li>Replace PatentService instance with mock version</li>
+            <li class="fragment">In Grails, grails-app/conf/spring/resources.groovy</li>
+          </ul>
+          <pre class="fragment"><code>
+  beans = {
+  
+    if (Environment.current == Environment.TEST) {
+      // Override the PatentService with our mock version when running tests
+      patentService(PatentServiceMock)
+      
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test that hits mock service</h2>
+          <pre><code>
+  def 'should submit idea to patent office'() {
+    given:
+    IdeaRemoteControl ideaRemoteControl = new IdeaRemoteControl()
+    ideaRemoteControl.resetMockPatentService()
+    
+    IdeaCreatePage ideaCreatePage = to(IdeaCreatePage)
+    
+    String ideaTitle = "Patentable Idea"
+    String ideaDescription = "This idea is going to change the world"
+    
+    when:
+    IdeaShowPage ideaShowPage = ideaCreatePage.createIdea(ideaTitle, ideaDescription)
+    ideaShowPage = ideaShowPage.submitIdeaToPatentOffice()
+    
+    then:
+    Idea newIdea = ideaRemoteControl.findByTitle(ideaTitle)
+    
+    List<Idea> ideasSubmittedToPatentOffice = ideaRemoteControl
+        .findIdeasSubmittedToPatentOffice()
+    assert ideasSubmittedToPatentOffice*.id.contains(newIdea.id)
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Access mock service in remote controls</h2>
+          <pre><code>
+  class IdeaRemoteControl {
+    RemoteControl remote = new RemoteControl()
+    
+    void resetMockPatentService() {
+    
+      remote {
+        ctx.patentService.reset()
+      }
+      
+    }
+    
+    List<Idea> findIdeasSubmittedToPatentOffice() {
+    
+      remote {
+        return ctx.patentService.ideasSentToPatentOffice
+      }
+      
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Wrapping up</h1>
+        </section>
+        <section>
+          <h2>Contributing to Geb</h2>
+          <ul>
+            <li class="fragment">Answer questions on <a href="https://groups.google.com/forum/#!forum/geb-user">mailing list</a></li>
+            <li class="fragment">Contribute to <a href="http://www.gebish.org/manual/current/">Geb manual</a></li>
+            <li class="fragment">Tackle a <a href="https://github.com/geb/issues/issues">Geb issue</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="http://www.gebish.org/manual/current/">Geb Manual</a></li>
+            <li><a href="https://groups.google.com/forum/#!forum/geb-user">User mailing list</a></li>
+            <li><a href="https://github.com/geb/geb-example-grails">Official Geb Grails example</a></li>
+            <li><a href="https://github.com/geb/geb-example-gradle">Official Geb Gradle example</a></li>
+            <li><a href="https://github.com/craigatk/geb-example">Presentation Examples</a></li>
+            <li><a href="https://github.com/craigatk/geb-parallel-gradle">Parallel Example</a></li>
+            <li><a href="https://github.com/craigatk/grails3-geb-example">Geb/Grails3 Example</a></li>
+            <li><a href="https://github.com/geb/geb">Geb Source Code</a></li>
+          </ul>
+        </section>
+        <section>
+          <h1>Q&A</h1>
+          <ul class="fragment">
+            <li>@craigatk1</li>
+            <li>craig.atkinson@objectpartners.com</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+    <script src="./assets/js/app.js"></script>
+    <!-- If the query includes 'print-pdf', use the PDF print sheet-->
+    <script type="text/javascript">
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      } else if ( window.location.search.match( /print-paper/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+  </body>
+</html>
