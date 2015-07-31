@@ -39,6 +39,8 @@
             <li class="fragment">Principal Consultant, Object Partners (OPI)</li>
             <li class="fragment">Using Geb 3 years</li>
             <li class="fragment">Very minor Geb contributor</li>
+            <li class="fragment">@craigatk1</li>
+            <li class="fragment">craig.atkinson@objectpartners.com</li>
           </ul>
         </section>
         <section>
@@ -357,6 +359,32 @@
       submitButton.click()
       
       return browser.page
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Data type conversion</h2>
+          <pre><code>
+  class DependentPage extends geb.Page {
+    static content = {
+      firstNameField { $("#firstName") }
+      lastNameField { $("#lastName") }
+      
+      birthdayDayField { $("#birthdayDay") }
+      birthdayMonthField { $("#birthdayMonth") }
+      birthdayYearField { $("#birthdayYear") }
+    }
+    
+    void addSpouse(String firstName, String lastName, LocalDate birthday) {
+      firstNameField.value(firstName)
+      lastNameField.value(lastName)
+      
+      birthdayDayField.value(birthday.dayOfMonth.toString())
+      birthdayMonthField.value(birthday.monthOfYear.toString())
+      birthdayYearField.value(birthday.year.toString())
     }
   }
   
@@ -688,10 +716,6 @@
     def sendToPatentOffice(Idea idea) {
       ideasSentToPatentOffice << idea
     }
-    
-    void reset() {
-      ideasSentToPatentOffice = []
-    }
   }
   
 </code>
@@ -722,7 +746,6 @@
   def 'should submit idea to patent office'() {
     given:
     IdeaRemoteControl ideaRemoteControl = new IdeaRemoteControl()
-    ideaRemoteControl.resetMockPatentService()
     
     IdeaCreatePage ideaCreatePage = to(IdeaCreatePage)
     
@@ -750,14 +773,6 @@
   class IdeaRemoteControl {
     RemoteControl remote = new RemoteControl()
     
-    void resetMockPatentService() {
-    
-      remote {
-        ctx.patentService.reset()
-      }
-      
-    }
-    
     List<Idea> findIdeasSubmittedToPatentOffice() {
     
       remote {
@@ -784,14 +799,15 @@
         <section>
           <h2>Resources</h2>
           <ul>
-            <li><a href="http://www.gebish.org/manual/current/">Geb Manual</a></li>
+            <li><a href="http://www.gebish.org/manual/current/">Geb manual</a></li>
             <li><a href="https://groups.google.com/forum/#!forum/geb-user">User mailing list</a></li>
             <li><a href="https://github.com/geb/geb-example-grails">Official Geb Grails example</a></li>
             <li><a href="https://github.com/geb/geb-example-gradle">Official Geb Gradle example</a></li>
-            <li><a href="https://github.com/craigatk/geb-example">Presentation Examples</a></li>
-            <li><a href="https://github.com/craigatk/geb-parallel-gradle">Parallel Example</a></li>
-            <li><a href="https://github.com/craigatk/grails3-geb-example">Geb/Grails3 Example</a></li>
-            <li><a href="https://github.com/geb/geb">Geb Source Code</a></li>
+            <li><a href="https://github.com/craigatk/geb-example">Presentation examples</a></li>
+            <li><a href="https://github.com/craigatk/geb-parallel-gradle">Parallel example</a></li>
+            <li><a href="https://github.com/craigatk/grails3-geb-example">Geb/Grails3 example</a></li>
+            <li><a href="http://www.infoq.com/presentations/grails-geb-functional-test">Geb intro presentation video</a></li>
+            <li><a href="https://github.com/geb/geb">Geb source code</a></li>
           </ul>
         </section>
         <section>
