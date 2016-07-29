@@ -168,7 +168,11 @@
           </ul>
         </section>
         <section>
-          <h2></h2>
+          <h2>Headless CI</h2>
+          <ul>
+            <li>Run tests without display attached</li>
+            <li class="fragment"><a href="https://www.x.org/archive/X11R7.6/doc/man/man1/Xvfb.1.xhtml">X virtual frame buffer</a></li>
+          </ul>
         </section>
         <section>
           <h1>Page Objects</h1>
@@ -395,10 +399,9 @@
           <pre><code>
   def seleniumVersion = "2.53.1"
   
-  test "org.seleniumhq.selenium:selenium-support:${seleniumVersion}"
-  test "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
-  test "org.seleniumhq.selenium:selenium-firefox-driver:${seleniumVersion}"
-  test "org.seleniumhq.selenium:selenium-ie-driver:${seleniumVersion}"
+  testCompile "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
+  testCompile "org.seleniumhq.selenium:selenium-firefox-driver:${seleniumVersion}"
+  testCompile "org.seleniumhq.selenium:selenium-ie-driver:${seleniumVersion}"
   
 </code>
 </pre>
