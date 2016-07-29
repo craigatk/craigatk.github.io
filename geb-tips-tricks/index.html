@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 8]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 9]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie9"></html>
+<![endif]-->
+<!--if [(gt IE 9)|!(IE)] <!-->
+<html ng-app="main" class="no-js">
+  <!-- <![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title>Geb Functional Testing Unleashed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Reveal JS Template">
+    <link href="./assets/css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="opi-logo"></div>
+      <div class="slides">
+        <section data-state="index-slide">
+          <h1>Geb Tips & Tricks</h1>
+          <p>
+            <small> Craig Atkinson  | Chief Technologist | <a href="http://www.objectpartners.com/">Object Partners</a></small>
+            <img src="./assets/img/2015-OPI-Logo-Long.png" style="background:none; border:none; box-shadow:none;"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>About Me</h2>
+          <ul>
+            <li>Craig Atkinson</li>
+            <li class="fragment">Chief Technologist, Object Partners (OPI)</li>
+            <li class="fragment">Using Geb 4 past years</li>
+            <li class="fragment">Very minor Geb contributor</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Agenda</h2>
+          <ul>
+            <li class="fragment">Stable tests in CI environments</li>
+            <li class="fragment">Alternative approach to page objects</li>
+            <li class="fragment">Complex UI elements</li>
+            <li class="fragment">Cross-browser testing</li>
+            <li class="fragment">Running tests in parallel</li>
+            <li class="fragment">Remote controls</li>
+            <li class="fragment">Mock 3rd-party services</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Stable tests in CI</h2>
+          <ul>
+            <li>Frustrating when tests pass locally but fail in CI</li>
+            <li class="fragment">Failures tougher to debug</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Timing issues</h2>
+          <ul>
+            <li>CI machines often slower than developer laptops</li>
+            <li class="fragment">Dialogs that open or close slowly, dynamic content rendering, etc.</li>
+            <li class="fragment">Geb has built-in waiting support</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Geb waiting support</h2>
+          <ul>
+            <li class="fragment">Wait for elements to be visible, page content to change, etc.</li>
+            <li class="fragment">Can also wait for data changes (new DB record created, etc.)</li>
+            <li class="fragment"><strong>waitFor</strong> method available in tests and page objects</li>
+            <li class="fragment">Waits for any closure to return true</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Waiting examples</h2>
+          <pre class="fragment"><code>
+  waitFor {
+    $("div.alert").displayed
+  }
+  
+  assert $("div.alert").text() == "Error creating user"
+  
+</code></pre>
+          <pre class="fragment"><code>
+  waitFor {
+    databaseUtil.userExists('myUsername')
+  }
+  
+  loginPage.login('myUsername', 'myPassword')
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test failure screenshots</h2>
+          <ul>
+            <li>Usually can't watch browser test run on CI server</li>
+            <li class="fragment">PNG screenshot and HTML dump when test finishes</li>
+            <li class="fragment">Have tests extend <strong>GebReportingSpec</strong></li>
+            <li class="fragment">Configure CI build to archive screenshots & HTML</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Screenshot configuration</h2>
+          <p>GebConfig.groovy</p>
+          <pre><code>
+  // Configure where screenshots are stored
+  reportsDir = 'build/test-reports'
+  
+  // Optional, less noise when only failed tests generate screenshots
+  reportOnTestFailureOnly = true
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Javascript errors</h2>
+          <ul>
+            <li>Often have logs for server errors</li>
+            <li class="fragment">More code on front-end with newer frameworks like Angular, React, etc.</li>
+            <li class="fragment">What about Javascript errors?</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Capture browser logs</h2>
+          <pre><code>
+  def cleanup() {
+    LogEntries logs = driver.manage().logs().get(LogType.BROWSER)
+    List<LogEntry> errorLogEntries = logs.filter(Level.SEVERE)
+    
+    if (errorLogEntries) {
+      println "Browser errors:"
+      
+      errorLogEntries.each { logEntry ->
+        println("[${logEntry.level}] ${logEntry.message}")
+      }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Browser log example</h2>
+          <pre class="fragment"><code>
+  // Intentional Javascript error for demonstrating capturing browser logs
+  fakeObject.fakeMethod();
+  
+</code></pre>
+          <pre class="fragment"><code>
+  Browser errors:
+  [SEVERE] /author/edit/4 59:13 Uncaught ReferenceError: fakeObject is not defined
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Browser logging gotchas</h2>
+          <ul>
+            <li class="fragment">Not supported by Internet Explorer</li>
+            <li class="fragment">For safety, wrap logging code in try/catch</li>
+          </ul>
+        </section>
+        <section>
+          <h2></h2>
+        </section>
+        <section>
+          <h1>Page Objects</h1>
+        </section>
+        <section>
+          <h2>Page Object pattern</h2>
+          <ul>
+            <li>Abstract page-specific details into helper classes (Page Objects)</li>
+            <li class="fragment">Re-used across tests</li>
+            <li class="fragment">Single point of maintenance</li>
+            <li class="fragment">Tests become easier to read</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Page Object Example</h2>
+          <pre><code>
+  class LoginPage extends geb.Page {
+    static content = {
+      usernameField { $("#username") }
+      passwordField { $("#password") }
+      
+      submitButton(to: DashboardPage) { $("#submit") }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Using page objects in test</h2>
+          <p class="fragment">Standard: Geb delegates method calls to current page object</p>
+        </section>
+        <section>
+          <h2>Test with standard page objects</h2>
+          <pre><code>
+  to HomePage
+  loginButton.click()
+  
+  username = "user1"
+  password = "password1"
+  submitButton.click()
+  
+  // What page is the test on now?
+  
+  // What fields are on the current page?
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Alternative approach to page objects</h2>
+        </section>
+        <section>
+          <h2>Strongly-typed page objects</h2>
+          <ul>
+            <li class="fragment">Test uses instance of current page object</li>
+            <li class="fragment">Page objects have methods that resemble user actions</li>
+            <li class="fragment">Methods that change page return instance of new page</li>
+            <li class="fragment">Tests even easier to read</li>
+            <li class="fragment">IDE autocomplete available on pages in tests</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Test using typed pages</h2>
+          <pre><code>
+  HomePage homePage = to(HomePage)
+  
+  LoginPage loginPage = homePage.clickLoginButton()
+  
+  DashboardPage dashboardPage = loginPage.login("user1", "password1")
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Chain page calls</h2>
+          <pre><code>
+  HomePage homePage = to(HomePage)
+  
+  DashboardPage dashboardPage = homePage
+    .clickLoginButton()
+    .login("user1", "password1")
+    
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Typed home page</h2>
+          <pre><code>
+  class HomePage extends geb.Page {
+    static content = {
+      loginButton(to: LoginPage) { $("#loginButton") }
+    }
+    
+    LoginPage clickLoginButton() {
+      loginButton.click()
+      
+      return browser.page
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Typed login page</h2>
+          <pre><code>
+  class LoginPage extends geb.Page {
+    static content = {
+      usernameField { $("#username") }
+      passwordField { $("#password") }
+      submitButton(to: DashboardPage) { $("#submit") }
+    }
+    
+    DashboardPage login(String username, String password) {
+      usernameField.value(username)
+      passwordField.value(password)
+      submitButton.click()
+      
+      return browser.page
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Typed page objects summary</h2>
+          <ul>
+            <li class="fragment">Some additional work to write page objects</li>
+            <li class="fragment">Save much more time when writing (and reading) test cases</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Complex UI elements</h1>
+        </section>
+        <section>
+          <h2>Mouse interactions</h2>
+          <p class="fragment">Click and drag slider with mouse</p>
+          <pre class="fragment"><code>
+  static content = {
+    ratingSliderHandle { $(".ui-slider-handle") }
+  }
+  
+  void moveRatingSlider(Integer rating) {
+    // Slider is 400 pixels wide and starts at 1,
+    // so each notch above 1 is 100 pixels apart
+    Integer numPixelsX = (rating - 1) * 100
+    
+    interact {
+      clickAndHold(ratingSliderHandle)
+      moveByOffset(numPixelsX, 0)
+      release()
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Mouse interaction demo</h2>
+        </section>
+        <section>
+          <h2>Use keyboard</h2>
+          <p class="fragment">Send keystrokes with left-shift operator <<</p>
+          <pre class="fragment"><code>
+  $("#myInputField") << "value"
+  
+</code></pre>
+          <pre class="fragment"><code>
+  $(".ui-slider-handle") << Keys.ARROW_RIGHT
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Keyboard demo</h2>
+        </section>
+        <section>
+          <h2>Execute raw Javascript</h2>
+          <ul>
+            <li>Last-ditch effort with complex UI controls</li>
+            <li class="fragment">All Navigator elements have a 'jquery' field to run JS</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Show hidden element</h2>
+          <pre><code>
+  static content = {
+    hiddenLink { $("#hiddenLink") }
+  }
+  
+  void clickHiddenLink() {
+    hiddenLink.jquery.show()
+    
+    hiddenLink.click()
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Cross-Browser Testing</h1>
+        </section>
+        <section>
+          <h2>Available browsers</h2>
+          <ul>
+            <li>Any browser with a Selenium/Webdriver library</li>
+            <li class="fragment">Real: Firefox, Chrome, IE, Safari, etc.</li>
+            <li class="fragment">Simulated: HtmlUnit, PhantomJS</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Configuring browser in Geb</h2>
+          <ul>
+            <li class="fragment">Browser Selenium driver dependency</li>
+            <li class="fragment">Additional OS-specific browser driver</li>
+            <li class="fragment">Section in GebConfig.groovy</li>
+            <li class="fragment">Pass environment parameter to Geb</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Selenium driver dependencies</h2>
+          <pre><code>
+  def seleniumVersion = "2.53.1"
+  
+  test "org.seleniumhq.selenium:selenium-support:${seleniumVersion}"
+  test "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
+  test "org.seleniumhq.selenium:selenium-firefox-driver:${seleniumVersion}"
+  test "org.seleniumhq.selenium:selenium-ie-driver:${seleniumVersion}"
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Operating system driver</h2>
+          <ul>
+            <li class="fragment">Chrome & Internet Explorer need local driver executable</li>
+            <li class="fragment">Firefox <= 47 doesn't need one, Firefox >= 48 does</li>
+            <li class="fragment">Manually download, install, and configure</li>
+            <li class="fragment">Or ...</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Automatic download</h2>
+          <ul>
+            <li class="fragment"><a href="https://github.com/bonigarcia/webdrivermanager">WebdriverManager library</a> by Boni Garcia</li>
+            <li class="fragment">Downloads and configures driver for your OS</li>
+          </ul>
+        </section>
+        <section>
+          <h2>WebdriverManager dependency</h2>
+          <pre><code>
+  testCompile("io.github.bonigarcia:webdrivermanager:1.4.1")
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Chrome GebConfig Example</h2>
+          <pre><code>
+  import io.github.bonigarcia.wdm.ChromeDriverManager
+  import org.openqa.selenium.chrome.ChromeDriver
+  
+  environments {
+    chrome {
+      ChromeDriverManager.getInstance().setup()
+      
+      driver = { new ChromeDriver() }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>WebDriverManager configuration</h2>
+          <ul>
+            <li>Drivers downloaded to ~/.m2/repository/webdriver by default</li>
+            <li>Download location and many other parameters are <a href="https://github.com/bonigarcia/webdrivermanager#advanced">configurable</a> via config file or system properties</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example config file</h2>
+          <pre><code>
+  # src/test/resources/application.properties
+  
+  wdm.targetPath=build/webdriver
+  </pre></code>
+        </section>
+        <section>
+          <h2>Pass geb.env parameter</h2>
+          <p class="fragment">Grails 2</p>
+          <pre class="fragment"><code>
+  grails -Dgeb.env=chrome test-app functional:
+  
+</code></pre>
+          <p class="fragment">Grails 3
+            <pre class="fragment"><code>
+  gradle -Dgeb.env=chrome integrationTest
+  
+</code></pre>
+          </p>
+          <p class="fragment">Spring Boot</p>
+          <pre class="fragment"><code>
+  gradle -Dgeb.env=chrome test
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Tweak Grails 3 Gradle file</h2>
+          <pre><code>
+  // Pass system properties through to the integrationTest task
+  // so we can pass in the 'geb.env' property
+  configure(integrationTest) {
+    systemProperties System.properties
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Tweak Spring Boot Gradle file</h2>
+          <pre><code>
+  // Pass system properties through to the test task
+  // so we can pass in the 'geb.env' property
+  configure(test) {
+    systemProperties System.properties
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Parallel testing</h1>
+        </section>
+        <section>
+          <h2>Parallel testing requirements</h2>
+          <ul>
+            <li>Build tool that supports parallel testing (Gradle, etc.)</li>
+            <li class="fragment">Tests can't modify any shared data</li>
+            <li class="fragment">Safest to have each test set up its own data</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Parallel testing example</h2>
+          <ul>
+            <li>Using Gradle</li>
+            <li class="fragment">Start app using Grails wrapper</li>
+            <li class="fragment">Run 2 tests simultaneously</li>
+            <li class="fragment">Shut down Grails app</li>
+            <li class="fragment">Demo</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Groovy Remote Control</h1>
+        </section>
+        <section>
+          <h2>What are remote controls useful for?</h2>
+          <ul>
+            <li>When tests run in separate JVM from application</li>
+            <li class="fragment">Setting up data specific to a test</li>
+            <li class="fragment">Grabbing data after test for verification</li>
+            <li class="fragment">Retrieving & setting up data in mock services (stay tuned)</li>
+          </ul>
+        </section>
+        <section>
+          <h2>How does it work?</h2>
+          <ul>
+            <li class="fragment">Lets you execute code inside the running app from a test</li>
+            <li class="fragment"><a href="https://github.com/alkemist/grails-remote-control">Remote Control plugin docs</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Data setup example</h2>
+          <pre><code>
+  Idea createIdea(String title, String description) {
+    RemoteControl remote = new RemoteControl()
+    
+    remote {
+      Idea idea = new Idea(
+          title: title,
+          description: description
+      )
+      
+      idea.save()
+    }
+  }
+  
+</code></pre>
+          <pre class="fragment"><code>
+  List<Idea> ideas = (1..5).collect { i ->
+    ideaRemoteControl.createIdea("Title ${i}", "Description ${i}")
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Data verification example</h2>
+          <pre><code>
+  Idea findByTitle(String title) {
+    RemoteControl remote = new RemoteControl()
+    
+    remote {
+      Idea.findByTitle(title)
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Grails 3 injection</h2>
+          <p>Tests and app run in same JVM</p>
+          <pre class="fragment"><code>
+  import grails.test.mixin.integration.Integration
+  import org.springframework.beans.factory.annotation.Autowired
+  
+  @Integration
+  class AuthorGebSpec extends GebReportingSpec {
+  
+      @Autowired
+      AuthorDataUtil authorDataUtil
+      
+      void "should create Author"() {
+        ...
+        
+        then:
+        assert authorDataUtil.findByLastName('Last')?.firstName == 'First'
+      }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Mock third-party services</h1>
+        </section>
+        <section>
+          <h2>Proliferation of Third-party services</h2>
+          <ul>
+            <li>Email, payment processing, storage, address verification, etc.</li>
+            <li class="fragment">Great for productivity, but can complicate testing</li>
+            <li class="fragment">Don't want our tests dependent on services out of our control</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Solution?</h2>
+          <ul>
+            <li class="fragment">Mock request/response from external services</li>
+            <li class="fragment">Our tests not dependent on external service</li>
+            <li class="fragment">Tests have tight control over service responses</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Test-specific Dependency Injection</h2>
+          <ul>
+            <li>When using DI framework like Spring, Guice, etc.</li>
+            <li class="fragment">Create mock version of code that calls external service</li>
+            <li class="fragment">Use DI to replace code with mock version during functional tests</li>
+            <li class="fragment">Setup and verify data from mock services in tests</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example service to mock</h2>
+          <p class="fragment">PatentService sends ideas to patent office</p>
+          <pre class="fragment"><code>
+  class PatentService {
+  
+    def sendToPatentOffice(Idea idea) {
+      // Send the idea to the real patent office
+      
+    }
+    
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Mock Patent Service</h2>
+          <pre><code>
+  class PatentServiceMock extends PatentService {
+    List<Idea> ideasSentToPatentOffice = []
+    
+    @Override
+    def sendToPatentOffice(Idea idea) {
+      ideasSentToPatentOffice << idea
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Use mock patent service</h2>
+          <ul>
+            <li>Replace PatentService instance with mock version</li>
+            <li class="fragment">In Grails, grails-app/conf/spring/resources.groovy</li>
+          </ul>
+          <pre class="fragment"><code>
+  beans = {
+  
+    if (Environment.current == Environment.TEST) {
+      // Override the PatentService with our mock version when running tests
+      patentService(PatentServiceMock)
+      
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test that hits mock service</h2>
+          <pre><code>
+  @Autowired
+  PatentServiceMock patentService
+  
+  def 'should submit idea to patent office'() {
+    given:
+    Idea idea = ideaRemoteControl.findByTitle('Patentable Idea')
+    
+    IdeaShowPage ideaShowPage = to([id: idea.id], IdeaShowPage)
+    
+    when:
+    ideaShowPage = ideaShowPage.submitIdeaToPatentOffice()
+    
+    then:
+    List<Idea> ideasSubmittedToPatentOffice = patentService.ideasSentToPatentOffice
+    
+    assert ideasSubmittedToPatentOffice*.id.contains(idea.id)
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Wrapping up</h1>
+        </section>
+        <section>
+          <h2>Summary</h2>
+          <ul>
+            <li class="fragment">Stable tests in CI environments</li>
+            <li class="fragment">Alternative approach to page objects</li>
+            <li class="fragment">Complex UI elements</li>
+            <li class="fragment">Cross-browser testing</li>
+            <li class="fragment">Running tests in parallel</li>
+            <li class="fragment">Data access with remote controls</li>
+            <li class="fragment">Mock 3rd-party services</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="http://www.gebish.org/manual/current/">Geb manual</a></li>
+            <li><a href="https://groups.google.com/forum/#!forum/geb-user">Geb User mailing list</a></li>
+            <li><a href="https://github.com/geb/geb-example-grails">Official Geb/Grails example</a></li>
+            <li><a href="https://github.com/geb/geb-example-gradle">Official Geb/Gradle example</a></li>
+            <li><a href="https://github.com/craigatk/spring-boot-geb">Geb/Spring Boot example</a></li>
+            <li><a href="https://github.com/craigatk/grails3-geb-example">Geb/Grails 3 example</a></li>
+            <li><a href="https://github.com/craigatk/geb-example">Geb/Grails 2 example</a></li>
+            <li><a href="https://github.com/craigatk/geb-gradle-example">Geb/Gradle example</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Contributing to Geb</h2>
+          <ul>
+            <li class="fragment">Answer questions on <a href="https://groups.google.com/forum/#!forum/geb-user">mailing list</a></li>
+            <li class="fragment">Contribute to <a href="http://www.gebish.org/manual/current/">Geb manual</a></li>
+            <li class="fragment">Tackle a <a href="https://github.com/geb/issues/issues">Geb issue</a></li>
+          </ul>
+        </section>
+        <section>
+          <h1>Q&A</h1>
+          <ul class="fragment">
+            <li>@craigatk1</li>
+            <li>craig.atkinson@objectpartners.com</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+    <script src="./assets/js/app.js"></script>
+    <!-- If the query includes 'print-pdf', use the PDF print sheet-->
+    <script type="text/javascript">
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      } else if ( window.location.search.match( /print-paper/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+  </body>
+</html>
