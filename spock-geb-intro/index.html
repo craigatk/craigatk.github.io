@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 8]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie"></html>
+<![endif]-->
+<!--[if IE 9]>
+<html lang="en" data-ng-app="main" id="ng-app" class="no-js ie9"></html>
+<![endif]-->
+<!--if [(gt IE 9)|!(IE)] <!-->
+<html ng-app="main" class="no-js">
+  <!-- <![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title>Intro to Spock and Geb</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Reveal JS Template">
+    <link href="./assets/css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="opi-logo"></div>
+      <div class="slides">
+        <section data-state="index-slide">
+          <h1>Intro to Spock and Geb</h1>
+          <p>
+            <small> Craig Atkinson  | Chief Technologist | <a href="http://www.objectpartners.com/">Object Partners</a></small>
+            <img src="./assets/img/2015-OPI-Logo-Long.png" style="background:none; border:none; box-shadow:none;"/>
+            
+          </p>
+        </section>
+        <section>
+          <h2>About Me</h2>
+          <ul>
+            <li>Craig Atkinson</li>
+            <li class="fragment">Chief Technologist, Object Partners (OPI)</li>
+            <li class="fragment">Using Spock & Geb past 4 years</li>
+            <li class="fragment">Very minor Geb contributor</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Agenda</h2>
+          <ul>
+            <li class="fragment">Intro to Spock</li>
+            <li class="fragment">Data-driven testing</li>
+            <li class="fragment">Mocks for unit testing</li>
+            <li class="fragment">Intro to Geb</li>
+            <li class="fragment">Combining Geb and Spock</li>
+          </ul>
+        </section>
+        <section>
+          <h2>What is Spock?</h2>
+          <p>Behavior-style test framework in Groovy with support for easy data-driven testing</p>
+        </section>
+        <section>
+          <h2>Behavior-Style Testing</h2>
+          <p>Test cases separated into three main sections</p>
+          <ul>
+            <li class="fragment">given (setup)</li>
+            <li class="fragment">when (execute method under test)</li>
+            <li class="fragment">then (verify results)</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Test Class Name</h2>
+          <p>Test class name ends in <strong>Spec</strong> or <strong>Specification</strong> and class extends <strong>spock.lang.Specification</strong></p>
+          <pre class="fragment"><code>
+  import spock.lang.Specification
+  
+  class BankAccountSpec extends Specification {
+  
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test Case Name</h2>
+          <p>Test case method names can be descriptive sentences</p>
+          <pre class="fragment"><code>
+  def "when depositing 10 dollars into new account then balance should be 10"() {
+  
+  }
+  
+</code>
+</pre>
+          <p class="fragment">Much more descriptive than</p>
+          <pre class="fragment"><code>
+  void depositTestCase1() {
+  
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test case body</h2>
+          <pre><code>
+  class BankAccountSpec extends Specification {
+  
+    def "when depositing 10 dollars in new account then balance should be 10"() {
+      given:
+      BankAccount bankAccount = new BankAccount()
+      
+      when:
+      bankAccount.deposit(10)
+      
+      then:
+      assert bankAccount.balance == 10
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>One-line test</h2>
+          <pre class="fragment"><code>
+  def "new account should have 0 balance"() {
+    expect:
+    assert new BankAccount().balance == 0
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Setup method</h2>
+          <p>Run code before each test method</p>
+          <pre><code>
+  void setup() {
+    // Setup code goes here
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Cleanup method</h2>
+          <p>Run code after each test method</p>
+          <pre><code>
+  void cleanup() {
+    // Cleanup code goes here
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Setup / Cleanup per test class</h2>
+          <pre><code>
+  void setupSpec() {
+    // Runs once before test methods in class
+  }
+  
+  void cleanupSpec() {
+    // Runs once after test methods in class
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Setup / Cleanup and inheritance</h2>
+          <ul>
+            <li>Might have a hierarchy of test classes for DRY common test code</li>
+            <li class="fragment">Spock runs the base class <strong>setup</strong> first</li>
+            <li class="fragment">Then goes down the inheritance chain</li>
+            <li class="fragment"><strong>cleanup</strong> is the reverse, starting at test class then going up to base class</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Data-driven tests</h2>
+          <p>Run <strong>same test body</strong> with <strong>multiple sets</strong> of test <strong>inputs</strong> and expected <strong>outputs</strong></p>
+        </section>
+        <section>
+          <h2><strong>where</strong> block</h2>
+          <pre><code>
+ where:
+ input1 | input2 || output
+ 4      | 6      || 5
+ 12     | 18     || 15
+ 20     | 14     || 17
+ 
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test with <strong>where</strong> block</h2>
+          <pre><code>
+  def 'deposits should increase balance'() {
+    given:
+    BankAccount bankAccount = new BankAccount()
+    
+    when:
+    bankAccount.deposit(amount)
+    
+    then:
+    assert bankAccount.balance == expectedBalance
+    
+    where:
+    amount || expectedBalance
+    10     || 10
+    25     || 25
+    50     || 50
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Identify failures</h2>
+          <ul>
+            <li>By default, each line in <strong>where:</strong> block combined into single test</li>
+            <li class="fragment">Makes it slower to identify which iteration failed</li>
+            <li class="fragment">Spock provides <strong>@Unroll</strong> to separate out test cases</li>
+            <li class="fragment">Also include inputs and outputs from <strong>where:</strong> block in tests results</li>
+          </ul>
+        </section>
+        <section>
+          <h2>@Unroll</h2>
+          <pre><code>
+  import spock.lang.Unroll
+  
+  @Unroll
+  def 'depositing #amount should increase balance to #expectedBalance'() {
+    given:
+    BankAccount bankAccount = new BankAccount()
+    
+    when:
+    bankAccount.deposit(amount)
+    
+    then:
+    assert bankAccount.balance == expectedBalance
+    
+    where:
+    amount || expectedBalance
+    10     || 10
+    25     || 25
+    50     || 50
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Groovy Power Assert</h2>
+          <p>Prints out descriptive and useful failure message when an assertion fails</p>
+          <pre class="fragment"><code>
+  def 'x plus y equals z'() {
+    when:
+    int x = 4
+    int y = 5
+    int z = 10
+    
+    then:
+    assert x + y == z
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Descriptive failure message</h2>
+          <pre><code>
+  Condition not satisfied:
+  
+  x + y == z
+  | | | |  |
+  4 9 5 |  10
+        false
+        
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Mocking objects</h2>
+          <ul>
+            <li>Spock has powerful built-in object mocking capabilities</li>
+            <li class="fragment">Very helpful for mocking interactions with other classes</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Class to test</h2>
+          <pre><code>
+  class BankAccount {
+    AuditService auditService
+    
+    BigDecimal balance
+    
+    BankAccount() {
+      auditService = new AuditService()
+      
+      balance = 0
+    }
+    
+    void deposit(BigDecimal amount) {
+      balance += amount
+      
+      auditService.record('deposit', amount)
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test using mock object</h2>
+          <pre><code>
+  class BankAccountSpec extends Specification {
+    def "should record audit event when making deposit"() {
+      given:
+      BankAccount bankAccount = new BankAccount()
+      
+      // Create Spock mock object
+      AuditService auditService = Mock()
+      
+      // Use mock object in class-under-test
+      bankAccount.auditService = auditService
+      
+      when:
+      bankAccount.deposit(100)
+      
+      then:
+      1 * auditService.record('deposit', 100)
+      
+      and:
+      assert bankAccount.balance == 100
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Mock return value</h2>
+          <pre><code>
+  then:
+  1 * accountService.calculateBalance(account) >> 20
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Flexible argument matching</h2>
+          <p>Can use closure to match method arguments</p>
+          <pre class="fragment"><code>
+  1 * userService.sendWelcomeEmail({ User user ->
+    user.email == 'jim@test.com' && user.name == 'Jim Smith'
+  })
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Throw exceptions</h2>
+          <pre><code>
+  1 * userService.sendWelcomeEmail(user) >> {
+    throw new IllegalStateException()
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Use arguments in result</h2>
+          <pre><code>
+  1 * userService.createUser(_, _) >> { String email, String name ->
+    new User(email: email, name: name)
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>More mock object capabilities</h2>
+          <ul>
+            <li><a href="https://spockframework.github.io/spock/docs/1.0/interaction_based_testing.html">Spock interaction docs</a></li>
+            <li class="fragment"><a href="https://github.com/craigatk/spock-mock-cheatsheet/blob/master/spock-mock-cheatsheet.pdf">One-page Spock mock cheatsheet</a></li>
+            <li class="fragment"><a href="https://github.com/craigatk/spock-mock-cheatsheet">GitHub project with Spock mock examples</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Helpful annotations</h2>
+          <ul>
+            <li><strong>@Ignore</strong> to skip test method or whole class</li>
+            <li class="fragment">Fastest way to fix a failing build</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Run single test method</h2>
+          <pre><code>
+  import spock.lang.IgnoreRest
+  
+  @IgnoreRest
+  def 'only run this test method'() {
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Spock summary</h2>
+          <ul>
+            <li class="fragment">Write readable tests with given/when/then syntax</li>
+            <li class="fragment">Avoid copy-paste with data-driven testing</li>
+            <li class="fragment">Write focused unit tests with flexible built-in mock objects</li>
+          </ul>
+        </section>
+        <section>
+          <h1>Geb Functional Testing</h1>
+        </section>
+        <section>
+          <h2>What is Functional Testing?</h2>
+          <ul>
+            <li class="fragment">Interact with the full system the way a user does</li>
+            <li class="fragment">For web applications, using a browser</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Why functional tests?</h2>
+          <ul>
+            <li class="fragment">Confidence that application really works for your users</li>
+            <li class="fragment">Verify all parts of application work correctly together</li>
+            <li class="fragment">Front-end code, back-end code, database, messaging, caching, etc.</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example functional test</h2>
+          <p>Verify that user can sign up</p>
+          <ul>
+            <li class="fragment">User goes to sign up form</li>
+            <li class="fragment">Fills in all required fields on form</li>
+            <li class="fragment">Clicks submit button</li>
+            <li class="fragment">Verify welcome page displayed</li>
+            <li class="fragment">Verify user data saved to database</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Geb introduction</h2>
+          <ul>
+            <li class="fragment">Groovy wrapper around Selenium testing library</li>
+            <li class="fragment">jQuery/CSS-style selectors for finding elements on page</li>
+            <li class="fragment">Powerful built-in page object support</li>
+            <li class="fragment">Write tests with Spock, JUnit, or TestNG</li>
+            <li class="fragment">Run tests using any browser Selenium supports</li>
+            <li class="fragment">Created by Luke Daley, currently lead by Marcin Erdmann</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Simple example test</h2>
+          <p>Search for Geb homepage using Google</p>
+          <pre class="fragment"><code>
+  go "http://www.google.com"
+  
+  $("input", name: "q").value("Geb")
+  $("button", name: "btnG").click()
+  
+  waitFor { $("#search").displayed }
+  
+  assert $("#search").text().contains("gebish.org")
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Demo</h2>
+        </section>
+        <section>
+          <h2>Test design</h2>
+          <ul>
+            <li>Tests with embedded page structure (HTML) are less readable</li>
+            <li class="fragment">Multiple places to update if page structure changes</li>
+            <li class="fragment">Can we abstract page structure out of tests?</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Page object pattern</h2>
+          <ul>
+            <li>Abstract page-specific details into helper classes</li>
+            <li class="fragment">Page objects re-used across tests</li>
+            <li class="fragment">Single point of maintenance</li>
+            <li class="fragment">Tests easier to read</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example test, revisited</h2>
+          <pre><code>
+  to GoogleHomePage
+  
+  searchBox = "Geb"
+  searchButton.click()
+  
+  assert searchResults.text().contains("gebish.org")
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Page Object</h2>
+          <pre><code>
+  class GoogleHomePage extends geb.Page {
+    static url = "http://www.google.com"
+    
+    static content = {
+      searchBox { $("input", name: "q") }
+      searchButton { $("button", name: "btnG") }
+      searchResults { $("#search") }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>What's in a Geb page object?</h2>
+          <ul>
+            <li class="fragment">Elements on page and how to find them</li>
+            <li class="fragment">URL to go directly to page</li>
+            <li class="fragment">How to verify currently on page</li>
+            <li class="fragment">Helper methods to simplify page interaction</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Content Block</h2>
+          <ul>
+            <li class="fragment">Defines elements on the page that tests will interact with</li>
+            <li class="fragment">Includes <strong>selectors</strong> that tell Geb how to find the element on the page</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Common selectors</h2>
+          <pre><code>
+  static content = {
+    depositButtonById    { $("#deposit-button") }
+    
+    depositButtonByClass { $(".deposit-button") }
+    
+    depositButtonByName  { $("input", name: "deposit") }
+    
+    depositButtonByText  { $("input", text: "Deposit") }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Many more selectors</h2>
+          <ul>
+            <li><a href="http://www.gebish.org/manual/current/#navigator">Full list of all types of selectors in Geb manual</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Go directly to page</h2>
+          <ul>
+            <li class="fragment">Define <strong>url</strong> in Page Object</li>
+            <li class="fragment">Use <strong>to(PageClass)</strong> method in test</li>
+            <li class="fragment">Speed up test by skipping preliminary pages</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example</h2>
+          <pre><code>
+  class LoginPage extends Page {
+    static url = "/app/login"
+  }
+  
+</code>
+</pre>
+          <pre><code>
+  // In test
+  LoginPage loginPage = to(LoginPage)
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Verify on expected page</h2>
+          <ul>
+            <li>Geb can verify destination page when page changes</li>
+            <li class="fragment">Calling <strong>to()</strong> method, clicking link, etc.</li>
+            <li class="fragment">Geb uses <strong>at</strong> checker in page object</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Define 'at' checker</h2>
+          <pre><code>
+  class LoginPage extends Page {
+    static at = { title == 'Login to my app' }
+    
+    static url = "/app/login"
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Dynamic Content</h2>
+          <ul>
+            <li class="fragment">Content changes without a page reload (ajax, websockets, etc.)</li>
+            <li class="fragment">Wait for element displayed, content values, etc.</li>
+            <li class="fragment"><strong>waitFor</strong> method available in tests and page objects</li>
+            <li class="fragment">Waits until closure returns true</li>
+          </ul>
+        </section>
+        <section>
+          <h2><strong>waitFor</strong> examples</h2>
+          <pre><code>
+  waitFor {
+    $("div.alert").displayed
+  }
+  
+  assert $("div.alert").text() == "Error creating user"
+  
+</code>
+</pre>
+          <pre class="fragment"><code>
+  waitFor {
+    $("div.message").text() == "Update successful"
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Configuration</h2>
+          <ul>
+            <li>Waiting, reporting, browsers, etc.</li>
+            <li class="fragment">Configuration read from GebConfig.groovy file</li>
+            <li class="fragment"><a href='http://www.gebish.org/manual/current/#config-options'>List of options in Geb manual</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Cross-Browser Testing</h2>
+          <p>Can use same test code across different browsers</p>
+        </section>
+        <section>
+          <h2>Configuring browser in Geb</h2>
+          <ul>
+            <li class="fragment">Browser Selenium driver dependency</li>
+            <li class="fragment">Additional OS-specific executable</li>
+            <li class="fragment">Section in GebConfig.groovy</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Selenium driver dependencies</h2>
+          <pre><code>
+  def seleniumVersion = "2.53.1"
+  
+  testCompile "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
+  testCompile "org.seleniumhq.selenium:selenium-firefox-driver:${seleniumVersion}"
+  testCompile "org.seleniumhq.selenium:selenium-ie-driver:${seleniumVersion}"
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Switching browsers</h2>
+          <p>GebConfig.groovy</p>
+          <pre><code>
+  import org.openqa.selenium.chrome.ChromeDriver
+  import org.openqa.selenium.firefox.FirefoxDriver
+  
+  // Default browser
+  driver = { new FirefoxDriver() }
+  
+  environments {
+    chrome {
+      // Assumes OS-specific library already downloaded on machine running tests
+      System.setProperty('webdriver.chrome.driver', '/path/to/chromedriver')
+      
+      driver = { new ChromeDriver() }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Browser requirements</h2>
+          <ul>
+            <li>Firefox <= 47: Selenium driver dependency only</li>
+            <li class="fragment">Firefox >= 48: Also requires OS-specific library</li>
+            <li class="fragment">Chrome & IE: Selenium driver and OS-specific library</li>
+          </ul>
+        </section>
+        <section>
+          <h2>OS-driver automatic download</h2>
+          <ul>
+            <li>Could download/manage these OS-specific executables by hand, or ...</li>
+            <li class="fragment">Use <a href="https://github.com/bonigarcia/webdrivermanager">WebdriverManager library</a> by Boni Garcia</li>
+          </ul>
+        </section>
+        <section>
+          <h2>WebdriverManager dependency</h2>
+          <pre><code>
+  testCompile("io.github.bonigarcia:webdrivermanager:1.4.1")
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Chrome GebConfig Example</h2>
+          <pre><code>
+  import io.github.bonigarcia.wdm.ChromeDriverManager
+  import org.openqa.selenium.chrome.ChromeDriver
+  
+  environments {
+    chrome {
+      // Downloads driver for the current OS and does all necessary configuration
+      ChromeDriverManager.getInstance().setup()
+      
+      driver = { new ChromeDriver() }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Combining Geb with Spock</h2>
+          <ul>
+            <li class="fragment"><strong>given / when / then</strong> clearly separate test case sections</li>
+            <li class="fragment">Descriptive, full-sentence test names</li>
+            <li class="fragment">Data-driven testing with <strong>where:</strong> block</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Example Geb / Spock test</h2>
+          <pre><code>
+  class AccountDepositGebSpec extends geb.spock.GebReportingSpec {
+    def "should deposit amount into bank account"() {
+      given:
+      AccountPage accountPage = to(AccountPage)
+      
+      DepositPage depositPage = accountPage.clickDepositLink()
+      
+      when:
+      depositPage.depositAmount(100)
+      
+      then:
+      waitFor { depositPage.successMessage.displayed }
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Test Superclass</h2>
+          <ul>
+            <li>Extend <strong>GebReportingSpec</strong></li>
+            <li class="fragment">Automatically takes screenshots and HTML dumps</li>
+            <li class="fragment">Very helpful for debugging test failures, especially in CI</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Data-driven Geb / Spock test</h2>
+          <pre><code>
+  @Unroll
+  def "should get error message when logging in with invalid user #username"() {
+    when: "logging in as invalid user"
+    LoginPage loginPage = loginAsUser(username)
+    
+    then: "should show error message"
+    assert loginPage.errorMessage == expectedErrorMessage
+    
+    where:
+    username       || expectedErrorMessage
+    'disabledUser' || 'Sorry, your account is disabled'
+    'lockedUser'   || 'Sorry, your account is locked'
+    'missingUser'  || 'Sorry, we could not find that account'
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h1>Wrapup</h1>
+        </section>
+        <section>
+          <h2>Spock Resources</h2>
+          <ul>
+            <li><a href="http://spockframework.github.io/spock/docs/1.0/index.html">Spock documentation</a></li>
+            <li><a href="http://meetspock.appspot.com/">Spock web console</a></li>
+            <li><a href="https://github.com/spockframework/spock-example">Official Spock example project</a></li>
+            <li><a href="https://github.com/craigatk/spock-mock-cheatsheet">Spock mock examples</a></li>
+            <li><a href="https://groups.google.com/forum/#!forum/spockframework">Spock User mailing list</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Geb Resources</h2>
+          <ul>
+            <li><a href="http://www.gebish.org/manual/current/">Geb manual</a></li>
+            <li><a href="https://groups.google.com/forum/#!forum/geb-user">Geb User mailing list</a></li>
+            <li><a href="https://github.com/geb/geb-example-grails">Official Geb/Grails example</a></li>
+            <li><a href="https://github.com/geb/geb-example-gradle">Official Geb/Gradle example</a></li>
+            <li><a href="https://github.com/craigatk/spring-boot-geb">Geb/Spring Boot example</a></li>
+            <li><a href="https://github.com/craigatk/grails3-geb-example">Geb/Grails 3 example</a></li>
+            <li><a href="https://github.com/craigatk/geb-example">Geb/Grails 2 example</a></li>
+            <li><a href="https://github.com/craigatk/geb-gradle-example">Geb/Gradle example</a></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Geb tips & tricks presentation</h2>
+          <p>Law School 235 after lunch</p>
+        </section>
+        <section>
+          <h1>Q&A</h1>
+          <ul class="fragment">
+            <li>@craigatk1</li>
+            <li>craig.atkinson@objectpartners.com</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+    <script src="./assets/js/app.js"></script>
+    <!-- If the query includes 'print-pdf', use the PDF print sheet-->
+    <script type="text/javascript">
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      } else if ( window.location.search.match( /print-paper/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './assets/css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+  </body>
+</html>
