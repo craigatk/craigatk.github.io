@@ -867,8 +867,67 @@
           <ul>
             <li>Ratpack backend + Vue.js frontend</li>
             <li>Tests run in parallel</li>
-            <li><a href="https://github.com/craigatk/ratpack-standup/tree/parallel-test">Code on Github</a></li>
           </ul>
+        </section>
+        <section>
+          <h2>Parallel Gradle task</h2>
+          <pre><code>
+  task testBrowser(type: Test, dependsOn: 'assembleJs') {
+    include '**/*GebSpec*'
+    
+    maxParallelForks = 3
+    
+    // Pass system properties through to the testBrowser task so we can pass in the
+    // 'geb.env' property to run tests in different browsers.
+    systemProperties System.properties
+  }
+  
+  check.dependsOn('testBrowser')
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Ratpack Geb test</h2>
+          <pre><code>
+  class StandupGebSpec extends GebReportingSpec {
+    @AutoCleanup
+    def aut
+    
+    def setup() {
+      // Set a random database identifier so this test has its own DB
+      System.setProperty('db', RandomStringUtils.randomNumeric(8))
+      
+      aut = new GroovyRatpackMainApplicationUnderTest()
+      
+      URI base = aut.address
+      browser.baseUrl = base.toString()
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Database per-test</h2>
+          <pre><code>
+  ratpack {
+    bindings {
+      bindInstance(DataSource, new JdbcDataSource(
+        URL: "jdbc:h2:mem:test${System.getProperty('db', '0')};DB_CLOSE_DELAY=-1",
+        user: "sa",
+        password: ""
+      ))
+      ...
+    }
+  }
+  
+</code>
+</pre>
+        </section>
+        <section>
+          <h2>Parallel Test Demo Code</h2>
+          <p><a href="https://github.com/craigatk/ratpack-standup/tree/parallel-test">Code on Github</a></p>
         </section>
         <section>
           <h1>Wrapup</h1>
